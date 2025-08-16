@@ -104,13 +104,27 @@ $regButton.Location = New-Object System.Drawing.Point(15, 100)
 $regButton.Size = New-Object System.Drawing.Size(80, 30)
 $regButton.Text = "Info Reg"
 $regButton.Add_Click({
-    # Esegui il file .reg utilizzando regedit.exe e attendi la completamento del processo
-    $regFile = Join-Path $PSScriptRoot "ElettronetInfo.reg"
-    $process = [System.Diagnostics.Process]::Start("regedit.exe", "/s `"$regFile`"")
-    $process.WaitForExit()
-
-    # Mostra una notifica
-    [System.Windows.Forms.MessageBox]::Show("Elettronet info impostato correttamente!", "Oem Information Elettronet", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    try {
+        # Scarica il file .reg dal link GitHub
+        $regUrl = "https://raw.githubusercontent.com/Richy88/ToolWindows1.0/refs/heads/main/ElettronetInfo.reg"
+        $regContent = (New-Object System.Net.WebClient).DownloadString($regUrl)
+        
+        # Crea un file temporaneo
+        $tempRegFile = [System.IO.Path]::GetTempFileName() + ".reg"
+        $regContent | Out-File -FilePath $tempRegFile -Encoding ASCII
+        
+        # Esegui il file .reg utilizzando regedit.exe e attendi il completamento del processo
+        $process = [System.Diagnostics.Process]::Start("regedit.exe", "/s `"$tempRegFile`"")
+        $process.WaitForExit()
+        
+        # Pulisci il file temporaneo
+        Remove-Item -Path $tempRegFile -Force
+        
+        # Mostra una notifica
+        [System.Windows.Forms.MessageBox]::Show("Elettronet info impostato correttamente!", "Oem Information Elettronet", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Errore durante il download o l'applicazione del file .reg: $_", "Errore", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    }
 })
 
 $form.Controls.Add($regButton)
