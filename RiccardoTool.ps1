@@ -412,16 +412,25 @@ $exeButton.Location = New-Object System.Drawing.Point(610, 205)
 $exeButton.Size = New-Object System.Drawing.Size(100, 30)
 $exeButton.Text = "Dns Panel"
 $exeButton.Add_Click({
-    # Specifica il percorso del file .exe da avviare
-    $exeFile = Join-Path $PSScriptRoot "DnsPanel.exe"
-
-    # Crea un oggetto ProcessStartInfo per configurare il processo
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = $exeFile
-    Write-Host "DnsPanel: Avvio In Corso..."
-
-    # Avvia il processo in modo asincrono
-    [System.Diagnostics.Process]::Start($psi)
+    try {
+        # Scarica il file .exe dal link GitHub
+        $exeUrl = "https://github.com/Richy88/ToolWindows1.0/raw/refs/heads/main/DnsPanel.exe"
+        $exeBytes = (New-Object System.Net.WebClient).DownloadData($exeUrl)
+        
+        # Crea un file temporaneo
+        $tempExeFile = [System.IO.Path]::GetTempFileName() + ".exe"
+        [System.IO.File]::WriteAllBytes($tempExeFile, $exeBytes)
+        
+        Write-Host "DnsPanel: Avvio In Corso..."
+        
+        # Avvia il processo in modo asincrono
+        Start-Process -FilePath $tempExeFile
+        
+        # Nota: Non eliminiamo il file temporaneo perché l'applicazione potrebbe essere ancora in esecuzione
+        # Il file verrà pulito automaticamente dal sistema quando necessario
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Errore durante il download o l'avvio di DnsPanel: $_", "Errore", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    }
 })
 
 $form.Controls.Add($exeButton)
