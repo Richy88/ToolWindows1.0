@@ -54,10 +54,25 @@ $form.Height = 800
 $form.StartPosition = "CenterScreen"
 
 # Aggiungi icona al form
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# URL dell'icona su GitHub (raw link)
+$iconUrl = "https://raw.githubusercontent.com/Richy88/ToolWindows1.0/refs/heads/main/_Ricona_.ico"
+
+# Percorso temporaneo dove salvare l'icona
+$tempIconPath = [System.IO.Path]::GetTempFileName().Replace(".tmp", ".ico")
+
+# Scarica l'icona
+Invoke-WebRequest -Uri $iconUrl -OutFile $tempIconPath
+
+# Crea il form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Windows Tool By Riccardo Plehan Use Chocolatey For Install"
 $form.ClientSize = New-Object System.Drawing.Size(800, 800)
-$form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon("$PSScriptRoot\_Ricona_.ico")
+
+# Carica l'icona scaricata
+$form.Icon = New-Object System.Drawing.Icon($tempIconPath)
 
 # Aggiungi lo sfondo al form
 $url = "https://iili.io/JnNNMZv.png"
@@ -514,3 +529,4 @@ $form.ShowDialog() | Out-Null
 # Create By Riccardo Plehan - Social ---> https://socialtoapp.com/richy88
 # Create By Riccardo Plehan - Social ---> https://socialtoapp.com/richy88
 # Create By Riccardo Plehan - Social ---> https://socialtoapp.com/richy88
+
