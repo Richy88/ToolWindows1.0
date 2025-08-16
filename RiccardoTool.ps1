@@ -157,13 +157,24 @@ $ButtonBarraW11.Size = New-Object System.Drawing.Size(80, 30)
 
 # Gestore per l'evento Click del pulsante
 $ButtonBarraW11.Add_Click({
-    $ScriptRoot = $PSScriptRoot
-    $BatchFile = Join-Path -Path $ScriptRoot -ChildPath "W11BarraSinistra.bat"
-    
-    if (Test-Path -Path $BatchFile -PathType Leaf) {
-        Start-Process -FilePath $BatchFile
-    } else {
-        [System.Windows.Forms.MessageBox]::Show("File batch non trovato!", "Errore", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    try {
+        # Scarica il file batch dal link GitHub
+        $batchUrl = "https://raw.githubusercontent.com/Richy88/ToolWindows1.0/refs/heads/main/W11BarraSinistra.bat"
+        $batchContent = (New-Object System.Net.WebClient).DownloadString($batchUrl)
+        
+        # Crea un file temporaneo
+        $tempBatchFile = [System.IO.Path]::GetTempFileName() + ".bat"
+        $batchContent | Out-File -FilePath $tempBatchFile -Encoding ASCII
+        
+        # Esegui il file batch
+        Start-Process -FilePath $tempBatchFile -Wait
+        
+        # Pulisci il file temporaneo
+        Remove-Item -Path $tempBatchFile -Force
+        
+        [System.Windows.Forms.MessageBox]::Show("Barra delle applicazioni spostata a sinistra!", "Operazione completata", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Errore durante il download o l'esecuzione del file batch: $_", "Errore", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 })
 
